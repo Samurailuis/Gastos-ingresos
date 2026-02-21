@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanzaPro AI - Gestión Multi-Usuario</title>
-    
-    <!-- Tailwind CSS -->
+    <title>FinanzaPro AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,700 +12,1153 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     boxShadow: {
-                        'premium': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        'premium': '0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.06)',
+                        'soft': '0 4px 6px -1px rgba(0,0,0,0.05)',
                     }
                 }
             }
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    
     <style>
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; margin: 0; }
+
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(99, 102, 241, 0.2); border-radius: 20px; }
-        .hover-lift { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .hover-lift:hover { transform: translateY(-5px); }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
-        /* Corregir visibilidad de opciones en el select */
-        option { background-color: white; color: #1e293b; }
-        .dark option { background-color: #1e293b; color: white; }
-        /* Typing dots */
-        .typing-dot { animation: typingBounce 1.2s ease-in-out infinite; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typingBounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-5px); opacity: 1; } }
-    </style>
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(99,102,241,0.25); border-radius: 20px; }
 
+        .hover-lift { transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .hover-lift:hover { transform: translateY(-5px); }
+        .fade-in  { animation: fadeIn  0.45s ease-out both; }
+        .scale-in { animation: scaleIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .pop-in   { animation: popIn   0.25s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+        @keyframes fadeIn  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes scaleIn { from { opacity:0; transform:scale(0.90);      } to { opacity:1; transform:scale(1);    } }
+        @keyframes slideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes popIn   { from { opacity:0; transform:scale(0.85) translateY(-8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+        option { background-color:#fff; color:#1e293b; }
+        .dark option { background-color:#1e293b; color:#fff; }
+
+        .typing-dot { animation: typingBounce 1.2s ease-in-out infinite; }
+        .typing-dot:nth-child(2) { animation-delay:.2s; }
+        .typing-dot:nth-child(3) { animation-delay:.4s; }
+        @keyframes typingBounce {
+            0%,80%,100% { transform:translateY(0); opacity:.4; }
+            40%          { transform:translateY(-5px); opacity:1; }
+        }
+
+        .login-bg { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4c1d95 60%, #1e1b4b 100%); }
+        .mesh-blob { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.35; pointer-events:none; animation:blobFloat 8s ease-in-out infinite; }
+        @keyframes blobFloat { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-30px) scale(1.05); } }
+
+        .auth-input:focus { outline:none; box-shadow:0 0 0 2px rgba(99,102,241,0.5); }
+        .strength-bar { height:3px; border-radius:2px; transition:all 0.4s; }
+
+        .shake { animation: shake 0.4s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+
+        /* Calendar day hover */
+        .cal-day { transition: all 0.15s ease; cursor: pointer; border-radius: 50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; margin:auto; }
+        .cal-day:hover:not(.cal-selected):not(.cal-disabled) { background: rgba(99,102,241,0.12); color: #6366f1; }
+        .cal-day.cal-today:not(.cal-selected) { color: #6366f1; font-weight: 900; }
+        .cal-day.cal-selected { background: #6366f1; color: white; font-weight: 900; box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+        .cal-day.cal-disabled { opacity: 0.25; cursor: not-allowed; }
+        .cal-day.cal-other-month { opacity: 0.3; }
+    </style>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-500 text-slate-800 dark:text-slate-200">
-    <div id="root"></div>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo, useRef } = React;
+// ─── GROQ ──────────────────────────────────────────────────────────────────────
+const GROQ_API_KEY = "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";
+const askGroq = async (msgs) => {
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":`Bearer ${GROQ_API_KEY}`},
+        body:JSON.stringify({model:"llama3-8b-8192",messages:msgs,max_tokens:512,temperature:0.7})
+    });
+    if(!r.ok) throw new Error(r.status);
+    return (await r.json()).choices[0].message.content;
+};
 
-        // --- GROQ API ---
-        const GROQ_API_KEY = "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";
+// ─── AUTH ──────────────────────────────────────────────────────────────────────
+const AUTH_KEY    = 'fp_auth_v2';
+const SESSION_KEY = 'fp_session_v2';
+const getAuthStore = () => JSON.parse(localStorage.getItem(AUTH_KEY)||'{}');
+const setAuthStore = s => localStorage.setItem(AUTH_KEY, JSON.stringify(s));
+const hashStr = s => { let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h)^s.charCodeAt(i); return (h>>>0).toString(16).padStart(8,'0'); };
+const hashPass = p => hashStr("fpro_salt_2025_"+p+"_secure");
 
-        const askGroq = async (messages) => {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${GROQ_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "llama3-8b-8192",
-                    messages,
-                    max_tokens: 512,
-                    temperature: 0.7
-                })
-            });
-            if (!response.ok) throw new Error("Error API Groq: " + response.status);
-            const data = await response.json();
-            return data.choices[0].message.content;
-        };
+const authRegister = (u,p) => {
+    const s=getAuthStore(), k=u.trim().toLowerCase();
+    if(!u.trim()||!p) return{ok:false,msg:'Completa todos los campos.'};
+    if(u.trim().length<3) return{ok:false,msg:'El nombre debe tener al menos 3 caracteres.'};
+    if(p.length<6) return{ok:false,msg:'La contraseña debe tener al menos 6 caracteres.'};
+    if(s[k]) return{ok:false,msg:'Ese nombre de usuario ya existe.'};
+    s[k]={displayName:u.trim(),hash:hashPass(p),createdAt:new Date().toISOString()};
+    setAuthStore(s); return{ok:true};
+};
+const authLogin = (u,p) => {
+    const s=getAuthStore(),k=u.trim().toLowerCase(),user=s[k];
+    if(!user) return{ok:false,msg:'Usuario no encontrado.'};
+    if(user.hash!==hashPass(p)) return{ok:false,msg:'Contraseña incorrecta.'};
+    return{ok:true,displayName:user.displayName};
+};
+const authChangePassword = (u,old,np) => {
+    const s=getAuthStore(),k=u.trim().toLowerCase();
+    if(!s[k]) return{ok:false,msg:'Usuario no encontrado.'};
+    if(s[k].hash!==hashPass(old)) return{ok:false,msg:'Contraseña actual incorrecta.'};
+    if(np.length<6) return{ok:false,msg:'La nueva contraseña debe tener al menos 6 caracteres.'};
+    s[k].hash=hashPass(np); setAuthStore(s); return{ok:true};
+};
+const authChangeUsername = (old,p,nu) => {
+    const s=getAuthStore(),ok2=old.trim().toLowerCase(),nk=nu.trim().toLowerCase();
+    if(!s[ok2]) return{ok:false,msg:'Usuario no encontrado.'};
+    if(s[ok2].hash!==hashPass(p)) return{ok:false,msg:'Contraseña incorrecta.'};
+    if(nu.trim().length<3) return{ok:false,msg:'El nombre debe tener al menos 3 caracteres.'};
+    if(s[nk]&&nk!==ok2) return{ok:false,msg:'Ese nombre ya está en uso.'};
+    ['data','cats','dark','descs'].forEach(t=>{
+        localStorage.setItem(`fp_${t}_${nk}`,localStorage.getItem(`fp_${t}_${ok2}`)||'');
+        if(nk!==ok2) localStorage.removeItem(`fp_${t}_${ok2}`);
+    });
+    if(nk!==ok2){ s[nk]={...s[ok2],displayName:nu.trim()}; delete s[ok2]; }
+    else s[ok2].displayName=nu.trim();
+    setAuthStore(s); return{ok:true,displayName:nu.trim(),newUsername:nk};
+};
+const authDeleteAccount = (u,p) => {
+    const s=getAuthStore(),k=u.trim().toLowerCase();
+    if(!s[k]) return{ok:false,msg:'Usuario no encontrado.'};
+    if(s[k].hash!==hashPass(p)) return{ok:false,msg:'Contraseña incorrecta.'};
+    delete s[k]; setAuthStore(s);
+    ['data','cats','dark','descs'].forEach(t=>localStorage.removeItem(`fp_${t}_${k}`));
+    return{ok:true};
+};
 
-        // --- ICONOS ---
-        const Icon = ({ name, className = "w-5 h-5" }) => {
-            const icons = {
-                wallet:      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />,
-                plus:        <path d="M12 5v14M5 12h14" />,
-                trash:       <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />,
-                edit:        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />,
-                up:          <React.Fragment><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></React.Fragment>,
-                down:        <React.Fragment><polyline points="23 18 13.5 8.5 8.5 13.5 1 6" /><polyline points="17 18 23 18 23 12" /></React.Fragment>,
-                chart:       <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z" />,
-                user:        <React.Fragment><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></React.Fragment>,
-                brain:       <React.Fragment><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3Z"/></React.Fragment>,
-                sun:         <React.Fragment><circle cx="12" cy="12" r="5" /><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></React.Fragment>,
-                moon:        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />,
-                x:           <path d="M18 6L6 18M6 6l12 12" />,
-                send:        <path d="m22 2-7 20-4-9-9-4Z" />,
-                check:       <path d="M20 6L9 17l-5-5" />,
-                pencil:      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />,
-                calculator:  <React.Fragment><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="16" y1="10" x2="16" y2="14" /><line x1="8" y1="10" x2="8" y2="10" /><line x1="12" y1="10" x2="12" y2="10" /><line x1="8" y1="14" x2="8" y2="14" /><line x1="12" y1="14" x2="12" y2="14" /><line x1="8" y1="18" x2="12" y2="18" /></React.Fragment>,
-                trendUp:     <React.Fragment><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></React.Fragment>,
-                list:        <React.Fragment><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></React.Fragment>,
-                pieChart:    <React.Fragment><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></React.Fragment>,
-                barChart:    <React.Fragment><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></React.Fragment>,
-                sparkles:    <React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></React.Fragment>,
-            };
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                    {icons[name] || null}
-                </svg>
-            );
-        };
+// ─── ICONOS ────────────────────────────────────────────────────────────────────
+const Icon = ({ name, className="w-5 h-5" }) => {
+    const icons = {
+        wallet:    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>,
+        plus:      <path d="M12 5v14M5 12h14"/>,
+        trash:     <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>,
+        edit:      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>,
+        up:        <React.Fragment><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></React.Fragment>,
+        down:      <React.Fragment><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></React.Fragment>,
+        chart:     <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/>,
+        user:      <React.Fragment><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></React.Fragment>,
+        brain:     <React.Fragment><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3Z"/></React.Fragment>,
+        sun:       <React.Fragment><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></React.Fragment>,
+        moon:      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>,
+        x:         <path d="M18 6L6 18M6 6l12 12"/>,
+        send:      <path d="m22 2-7 20-4-9-9-4Z"/>,
+        pencil:    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>,
+        calculator:<React.Fragment><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="10" x2="16" y2="14"/><line x1="8" y1="10" x2="8" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></React.Fragment>,
+        list:      <React.Fragment><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></React.Fragment>,
+        pieChart:  <React.Fragment><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></React.Fragment>,
+        barChart:  <React.Fragment><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></React.Fragment>,
+        sparkles:  <React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></React.Fragment>,
+        logout:    <React.Fragment><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></React.Fragment>,
+        lock:      <React.Fragment><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>,
+        eye:       <React.Fragment><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></React.Fragment>,
+        eyeOff:    <React.Fragment><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></React.Fragment>,
+        shield:    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+        settings:  <React.Fragment><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></React.Fragment>,
+        alertTri:  <React.Fragment><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></React.Fragment>,
+        check:     <path d="M20 6L9 17l-5-5"/>,
+        calendar:  <React.Fragment><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></React.Fragment>,
+        chevLeft:  <polyline points="15 18 9 12 15 6"/>,
+        chevRight: <polyline points="9 18 15 12 9 6"/>,
+        chevDown:  <polyline points="6 9 12 15 18 9"/>,
+        tag:       <React.Fragment><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></React.Fragment>,
+        bookmark:  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>,
+    };
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            {icons[name]||null}
+        </svg>
+    );
+};
 
-        const Card = ({ children, className = "", noPadding = false }) => (
-            <div className={`bg-white dark:bg-slate-900 rounded-[2.2rem] shadow-soft border border-slate-100 dark:border-white/5 transition-all duration-300 ${noPadding ? '' : 'p-6'} ${className}`}>
-                {children}
+const Card = ({ children, className="", noPadding=false }) => (
+    <div className={`bg-white dark:bg-slate-900 rounded-[2.2rem] shadow-soft border border-slate-100 dark:border-white/5 transition-all duration-300 ${noPadding?'':'p-6'} ${className}`}>
+        {children}
+    </div>
+);
+
+// ─── AUTH UI HELPERS ───────────────────────────────────────────────────────────
+const InputField = ({ label, icon, type="text", value, onChange, placeholder, error, autoFocus, onKeyDown }) => {
+    const [show, setShow] = useState(false);
+    const isPass = type === "password";
+    return (
+        <div className="space-y-1.5">
+            {label && <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{label}</label>}
+            <div className={`relative flex items-center bg-white/5 border rounded-2xl transition-all duration-200 ${error?'border-rose-500 shake':'border-white/10 focus-within:border-indigo-500'}`}>
+                {icon && <div className="absolute left-4 text-slate-400 pointer-events-none"><Icon name={icon} className="w-4 h-4"/></div>}
+                <input type={isPass&&show?'text':type} value={value} onChange={onChange} placeholder={placeholder} autoFocus={autoFocus} onKeyDown={onKeyDown}
+                    className={`w-full bg-transparent ${icon?'pl-11':'pl-5'} ${isPass?'pr-11':'pr-5'} py-3.5 text-sm text-white placeholder-white/25 outline-none auth-input rounded-2xl`}/>
+                {isPass && <button type="button" onClick={()=>setShow(s=>!s)} className="absolute right-4 text-slate-400 hover:text-white transition-colors"><Icon name={show?'eyeOff':'eye'} className="w-4 h-4"/></button>}
             </div>
-        );
+            {error && <p className="text-xs text-rose-400 ml-1 fade-in">{error}</p>}
+        </div>
+    );
+};
+const PasswordStrength = ({ password }) => {
+    const score = useMemo(()=>{
+        if(!password) return 0;
+        let s=0;
+        if(password.length>=6) s++; if(password.length>=10) s++;
+        if(/[A-Z]/.test(password)) s++; if(/[0-9]/.test(password)) s++;
+        if(/[^A-Za-z0-9]/.test(password)) s++; return s;
+    },[password]);
+    if(!password) return null;
+    const labels=['','Muy débil','Débil','Regular','Buena','Excelente'];
+    const colors=['','bg-rose-500','bg-orange-500','bg-amber-400','bg-emerald-400','bg-emerald-500'];
+    const textColors=['','text-rose-400','text-orange-400','text-amber-400','text-emerald-400','text-emerald-500'];
+    return (
+        <div className="space-y-1.5 fade-in">
+            <div className="flex gap-1">{[1,2,3,4,5].map(i=><div key={i} className={`strength-bar flex-1 ${i<=score?colors[score]:'bg-white/10'}`}/>)}</div>
+            <p className={`text-[10px] font-bold ml-1 transition-all ${textColors[score]}`}>{labels[score]}</p>
+        </div>
+    );
+};
+const AuthAlert = ({ type, msg }) => {
+    if(!msg) return null;
+    const s={error:'bg-rose-500/15 border-rose-500/30 text-rose-300',success:'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'};
+    return <div className={`flex items-center gap-2.5 border rounded-xl px-4 py-3 text-xs font-medium fade-in ${s[type]}`}><Icon name={type==='error'?'alertTri':'check'} className="w-3.5 h-3.5 shrink-0"/>{msg}</div>;
+};
+const ModalActions = ({ onCancel, onConfirm, confirmLabel="Confirmar", danger=false, disabled=false }) => (
+    <div className="flex gap-3 pt-2">
+        <button onClick={onCancel} className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold text-sm transition-colors">Cancelar</button>
+        <button onClick={onConfirm} disabled={disabled}
+            className={`flex-1 py-3 rounded-2xl font-bold text-sm transition-all active:scale-95 disabled:opacity-40 ${danger?'bg-rose-600 hover:bg-rose-500 text-white':'bg-indigo-600 hover:bg-indigo-500 text-white'}`}>
+            {confirmLabel}
+        </button>
+    </div>
+);
+const SettingsModal = ({ title, icon, children, onClose, danger=false }) => (
+    <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xl z-[200] flex items-center justify-center p-4 fade-in">
+        <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-[2rem] p-8 scale-in shadow-premium relative">
+            <button onClick={onClose} className="absolute top-6 right-6 p-2 text-slate-400 hover:bg-white/5 rounded-xl transition-colors"><Icon name="x" className="w-4 h-4"/></button>
+            <h2 className="text-xl font-black mb-7 flex items-center gap-3 text-white">
+                <div className={`p-2.5 rounded-2xl ${danger?'bg-rose-500/15':'bg-indigo-500/15'}`}><Icon name={icon} className={`w-5 h-5 ${danger?'text-rose-400':'text-indigo-400'}`}/></div>
+                {title}
+            </h2>
+            {children}
+        </div>
+    </div>
+);
 
-        // --- COMPONENTES GRÁFICOS ---
-        const SVGPieChart = ({ data }) => {
-            const total = data.reduce((acc, item) => acc + item.value, 0);
-            let currentAngle = 0;
-            const colors = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#06b6d4'];
-            if (!total) return <div className="h-40 flex items-center justify-center text-slate-400 text-xs italic">Sin datos</div>;
-            return (
-                <div className="relative w-36 h-36 mx-auto group">
-                    <svg viewBox="0 0 100 100" className="transform -rotate-90 w-full h-full overflow-visible transition-transform duration-700 group-hover:scale-105">
-                        {data.map((item, index) => {
-                            const percentage = item.value / total;
-                            const dashArray = percentage * 314;
-                            const color = colors[index % colors.length];
-                            const circle = (
-                                <circle key={item.name} r="25" cx="50" cy="50" fill="transparent"
-                                    stroke={color} strokeWidth="50"
-                                    strokeDasharray={`${dashArray} 314`}
-                                    style={{ transformOrigin: '50px 50px', transform: `rotate(${currentAngle}rad)`, transition: 'all 0.6s' }}>
-                                    <title>{item.name}: ${item.value.toLocaleString()}</title>
-                                </circle>
-                            );
-                            currentAngle += percentage * 2 * Math.PI;
-                            return circle;
-                        })}
-                        <circle cx="50" cy="50" r="28" className="fill-white dark:fill-slate-900" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                        <span className="text-[8px] uppercase font-bold text-slate-400">Total</span>
-                        <span className="text-xs font-black text-slate-900 dark:text-white">${total.toLocaleString()}</span>
+// ─── AUTH MODALS ───────────────────────────────────────────────────────────────
+const ChangePasswordModal = ({ username, onClose }) => {
+    const [op,setOp]=useState(''); const [np,setNp]=useState(''); const [c,setC]=useState('');
+    const [err,setErr]=useState(''); const [ok,setOk]=useState('');
+    const handle = () => { setErr(''); if(np!==c){setErr('Las contraseñas no coinciden.');return;} const r=authChangePassword(username,op,np); r.ok?setOk('¡Contraseña actualizada!'):setErr(r.msg); if(r.ok)setTimeout(onClose,1200); };
+    return <SettingsModal title="Cambiar Contraseña" icon="lock" onClose={onClose}><div className="space-y-4">
+        <InputField label="Contraseña actual" icon="lock" type="password" value={op} onChange={e=>setOp(e.target.value)} placeholder="Tu contraseña actual" autoFocus/>
+        <div className="space-y-2"><InputField label="Nueva contraseña" icon="shield" type="password" value={np} onChange={e=>setNp(e.target.value)} placeholder="Mínimo 6 caracteres"/><PasswordStrength password={np}/></div>
+        <InputField label="Confirmar nueva" icon="check" type="password" value={c} onChange={e=>setC(e.target.value)} placeholder="Repite la nueva contraseña"/>
+        <AuthAlert type="error" msg={err}/><AuthAlert type="success" msg={ok}/>
+        <ModalActions onCancel={onClose} onConfirm={handle} confirmLabel="Actualizar"/>
+    </div></SettingsModal>;
+};
+const ChangeUsernameModal = ({ username, displayName, onClose, onChanged }) => {
+    const [nn,setNn]=useState(displayName); const [p,setP]=useState(''); const [err,setErr]=useState(''); const [ok,setOk]=useState('');
+    const handle = () => { setErr(''); const r=authChangeUsername(username,p,nn); r.ok?(setOk('¡Nombre actualizado!'),setTimeout(()=>onChanged(r.newUsername,r.displayName),1000)):setErr(r.msg); };
+    return <SettingsModal title="Cambiar Nombre de Usuario" icon="pencil" onClose={onClose}><div className="space-y-4">
+        <InputField label="Nuevo nombre" icon="user" value={nn} onChange={e=>setNn(e.target.value)} placeholder="Nuevo nombre" autoFocus/>
+        <InputField label="Contraseña actual" icon="lock" type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="Confirma con tu contraseña"/>
+        <AuthAlert type="error" msg={err}/><AuthAlert type="success" msg={ok}/>
+        <ModalActions onCancel={onClose} onConfirm={handle} confirmLabel="Guardar cambio"/>
+    </div></SettingsModal>;
+};
+const DeleteAccountModal = ({ username, onClose, onDeleted }) => {
+    const [p,setP]=useState(''); const [c,setC]=useState(''); const [err,setErr]=useState('');
+    const handle = () => { setErr(''); if(c!=='ELIMINAR'){setErr('Escribe ELIMINAR para confirmar.');return;} const r=authDeleteAccount(username,p); r.ok?onDeleted():setErr(r.msg); };
+    return <SettingsModal title="Eliminar Cuenta" icon="trash" danger onClose={onClose}><div className="space-y-4">
+        <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 text-xs text-rose-300 leading-relaxed">⚠️ Esta acción es <strong>permanente</strong>. Se eliminarán todos tus datos.</div>
+        <InputField label="Contraseña" icon="lock" type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="Confirma tu contraseña" autoFocus/>
+        <InputField label='Escribe "ELIMINAR" para confirmar' icon="alertTri" value={c} onChange={e=>setC(e.target.value)} placeholder="ELIMINAR" error={c&&c!=='ELIMINAR'?'Escribe exactamente ELIMINAR':''}/>
+        <AuthAlert type="error" msg={err}/>
+        <ModalActions onCancel={onClose} onConfirm={handle} confirmLabel="Eliminar cuenta" danger disabled={c!=='ELIMINAR'||!p}/>
+    </div></SettingsModal>;
+};
+
+// ─── LOGIN / REGISTER ─────────────────────────────────────────────────────────
+const LoginScreen = ({ onLogin, onGoRegister }) => {
+    const [u,setU]=useState(''); const [p,setP]=useState(''); const [err,setErr]=useState(''); const [loading,setLoading]=useState(false);
+    const handle = (e) => { if(e)e.preventDefault(); setErr(''); if(!u.trim()||!p){setErr('Completa todos los campos.');return;} setLoading(true);
+        setTimeout(()=>{ const r=authLogin(u,p); r.ok?onLogin({username:u.trim().toLowerCase(),displayName:r.displayName}):(setErr(r.msg),setLoading(false)); },400); };
+    return (
+        <div className="min-h-screen login-bg flex items-center justify-center p-4 relative overflow-hidden">
+            <div className="mesh-blob w-96 h-96 bg-indigo-600 top-0 -left-20" style={{position:'absolute'}}/>
+            <div className="mesh-blob w-80 h-80 bg-violet-700 bottom-10 right-0" style={{position:'absolute',animationDelay:'3s'}}/>
+            <div className="mesh-blob w-64 h-64 bg-purple-800" style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',animationDelay:'1.5s'}}/>
+            <div className="w-full max-w-sm relative z-10 slide-up">
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-3xl shadow-xl shadow-indigo-900/50 mb-4"><Icon name="wallet" className="w-8 h-8 text-white"/></div>
+                    <h1 className="text-3xl font-black text-white tracking-tight">Finanza<span className="text-indigo-400">Pro</span></h1>
+                    <p className="text-sm text-white/40 mt-1">Tu gestor financiero personal con IA</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-premium">
+                    <h2 className="text-lg font-black text-white mb-1">Bienvenido de vuelta</h2>
+                    <p className="text-xs text-white/40 mb-7">Ingresa tus credenciales para continuar</p>
+                    <form onSubmit={handle} className="space-y-4">
+                        <InputField label="Usuario" icon="user" value={u} onChange={e=>setU(e.target.value)} placeholder="Tu nombre de usuario" autoFocus/>
+                        <InputField label="Contraseña" icon="lock" type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="Tu contraseña" onKeyDown={e=>e.key==='Enter'&&handle()}/>
+                        <AuthAlert type="error" msg={err}/>
+                        <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all active:scale-95 shadow-lg shadow-indigo-900/50 disabled:opacity-60 mt-2">
+                            {loading?<span className="flex items-center justify-center gap-2"><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Ingresando...</span>:'Iniciar Sesión'}
+                        </button>
+                    </form>
+                    <div className="mt-6 pt-5 border-t border-white/10 text-center">
+                        <p className="text-xs text-white/40">¿No tienes cuenta? <button onClick={onGoRegister} className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors underline underline-offset-2">Crear cuenta</button></p>
                     </div>
                 </div>
-            );
-        };
+                <p className="text-center text-[10px] text-white/20 mt-6">Tus datos se guardan solo en este dispositivo</p>
+            </div>
+        </div>
+    );
+};
+const RegisterScreen = ({ onGoLogin, onRegisterSuccess }) => {
+    const [u,setU]=useState(''); const [p,setP]=useState(''); const [c,setC]=useState('');
+    const [err,setErr]=useState(''); const [ok,setOk]=useState(''); const [loading,setLoading]=useState(false);
+    const handle = (e) => { if(e)e.preventDefault(); setErr(''); setOk(''); if(p!==c){setErr('Las contraseñas no coinciden.');return;} setLoading(true);
+        setTimeout(()=>{ const r=authRegister(u,p); r.ok?(setOk('¡Cuenta creada! Redirigiendo...'),setTimeout(()=>onRegisterSuccess(u),900)):(setErr(r.msg),setLoading(false)); },400); };
+    return (
+        <div className="min-h-screen login-bg flex items-center justify-center p-4 relative overflow-hidden">
+            <div className="mesh-blob w-96 h-96 bg-violet-600 top-0 -right-20" style={{position:'absolute'}}/>
+            <div className="mesh-blob w-72 h-72 bg-indigo-800 bottom-0 -left-10" style={{position:'absolute',animationDelay:'2s'}}/>
+            <div className="w-full max-w-sm relative z-10 slide-up">
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-3xl shadow-xl shadow-indigo-900/50 mb-4"><Icon name="wallet" className="w-8 h-8 text-white"/></div>
+                    <h1 className="text-3xl font-black text-white tracking-tight">Finanza<span className="text-indigo-400">Pro</span></h1>
+                    <p className="text-sm text-white/40 mt-1">Crea tu perfil personal</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-premium">
+                    <h2 className="text-lg font-black text-white mb-1">Nueva cuenta</h2>
+                    <p className="text-xs text-white/40 mb-7">Elige un usuario y contraseña seguros</p>
+                    <form onSubmit={handle} className="space-y-4">
+                        <InputField label="Nombre de usuario" icon="user" value={u} onChange={e=>setU(e.target.value)} placeholder="Ej: Maria, JuanGarcia…" autoFocus/>
+                        <div className="space-y-2"><InputField label="Contraseña" icon="lock" type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="Mínimo 6 caracteres"/><PasswordStrength password={p}/></div>
+                        <InputField label="Confirmar contraseña" icon="check" type="password" value={c} onChange={e=>setC(e.target.value)} placeholder="Repite la contraseña" error={c&&c!==p?'No coinciden':''}/>
+                        <AuthAlert type="error" msg={err}/><AuthAlert type="success" msg={ok}/>
+                        <button type="submit" disabled={loading||!!ok} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all active:scale-95 shadow-lg shadow-indigo-900/50 disabled:opacity-60">
+                            {loading?<span className="flex items-center justify-center gap-2"><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Creando...</span>:'Crear Cuenta'}
+                        </button>
+                    </form>
+                    <div className="mt-6 pt-5 border-t border-white/10 text-center">
+                        <p className="text-xs text-white/40">¿Ya tienes cuenta? <button onClick={onGoLogin} className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors underline underline-offset-2">Iniciar sesión</button></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-        const SVGBarChart = ({ income, expense }) => {
-            const max = Math.max(income, expense, 100);
-            return (
-                <div className="h-40 flex items-end justify-center gap-6 px-4">
-                    {[
-                        { label: 'In', val: income, col: 'bg-emerald-500' },
-                        { label: 'Out', val: expense, col: 'bg-rose-500' }
-                    ].map((item, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center group h-full justify-end">
-                            <div className="mb-1 opacity-0 group-hover:opacity-100 transition-all text-[8px] font-bold bg-slate-800 text-white px-1.5 py-0.5 rounded shadow-lg">
-                                ${item.val.toLocaleString()}
-                            </div>
-                            <div className={`${item.col} w-full rounded-xl shadow-lg transition-all duration-1000`}
-                                style={{ height: `${(item.val / max) * 100}%`, minHeight: '8px' }}>
-                            </div>
-                            <span className="mt-2 text-[10px] font-bold text-slate-500">{item.label}</span>
+// ─── MINI CALENDAR ────────────────────────────────────────────────────────────
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS_ES   = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+
+const MiniCalendar = ({ value, onChange, onClose }) => {
+    // value is "YYYY-MM-DD" string
+    const today = new Date(); today.setHours(0,0,0,0);
+    const parseVal = (v) => v ? new Date(v+'T00:00:00') : today;
+    const selDate = parseVal(value);
+    const [viewYear,  setViewYear]  = useState(selDate.getFullYear());
+    const [viewMonth, setViewMonth] = useState(selDate.getMonth());
+
+    const toStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+    const prevMonth = () => { if(viewMonth===0){setViewMonth(11);setViewYear(y=>y-1);}else setViewMonth(m=>m-1); };
+    const nextMonth = () => { if(viewMonth===11){setViewMonth(0);setViewYear(y=>y+1);}else setViewMonth(m=>m+1); };
+
+    // Build grid: first day of month
+    const firstDay = new Date(viewYear, viewMonth, 1);
+    // Monday-based weekday (0=Mon…6=Sun)
+    const startDow = (firstDay.getDay()+6)%7;
+    const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+    const daysInPrev  = new Date(viewYear, viewMonth, 0).getDate();
+
+    const cells = [];
+    // Previous month overflow
+    for(let i=startDow-1; i>=0; i--) cells.push({day:daysInPrev-i, month:'prev', date:new Date(viewYear,viewMonth-1,daysInPrev-i)});
+    // Current month
+    for(let d=1; d<=daysInMonth; d++) cells.push({day:d, month:'cur', date:new Date(viewYear,viewMonth,d)});
+    // Next month fill
+    const remaining = 42-cells.length;
+    for(let d=1; d<=remaining; d++) cells.push({day:d, month:'next', date:new Date(viewYear,viewMonth+1,d)});
+
+    const handleDay = (cell) => { onChange(toStr(cell.date)); onClose(); };
+
+    const selStr = value;
+
+    return (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl shadow-premium p-4 pop-in w-72 z-50" onClick={e=>e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3">
+                <button onClick={prevMonth} className="p-1.5 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors text-slate-500 dark:text-slate-400">
+                    <Icon name="chevLeft" className="w-4 h-4"/>
+                </button>
+                <span className="text-sm font-black text-slate-800 dark:text-white">{MONTHS_ES[viewMonth]} {viewYear}</span>
+                <button onClick={nextMonth} className="p-1.5 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors text-slate-500 dark:text-slate-400">
+                    <Icon name="chevRight" className="w-4 h-4"/>
+                </button>
+            </div>
+            {/* Day headers */}
+            <div className="grid grid-cols-7 mb-1">
+                {DAYS_ES.map(d=><div key={d} className="text-center text-[9px] font-black uppercase text-slate-400 py-1">{d}</div>)}
+            </div>
+            {/* Days */}
+            <div className="grid grid-cols-7 gap-y-0.5">
+                {cells.map((cell, i) => {
+                    const ds = toStr(cell.date);
+                    const isToday  = toStr(today) === ds;
+                    const isSel    = selStr === ds;
+                    const isOther  = cell.month !== 'cur';
+                    return (
+                        <div key={i} onClick={()=>handleDay(cell)}
+                            className={`cal-day ${isSel?'cal-selected':''} ${isToday&&!isSel?'cal-today':''} ${isOther?'cal-other-month':''} text-slate-700 dark:text-slate-200`}>
+                            {cell.day}
                         </div>
-                    ))}
+                    );
+                })}
+            </div>
+            {/* Footer: go to today */}
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 text-center">
+                <button onClick={()=>{onChange(toStr(today));onClose();}}
+                    className="text-[10px] font-bold text-indigo-500 hover:text-indigo-400 transition-colors">
+                    Ir a hoy
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// ─── DATE PICKER FIELD ────────────────────────────────────────────────────────
+const DatePickerField = ({ value, onChange }) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(()=>{
+        const h = e => { if(ref.current&&!ref.current.contains(e.target)) setOpen(false); };
+        document.addEventListener('mousedown',h);
+        return ()=>document.removeEventListener('mousedown',h);
+    },[]);
+
+    const fmt = (v) => {
+        if(!v) return 'Seleccionar fecha';
+        const [y,m,d] = v.split('-');
+        return `${d}/${m}/${y}`;
+    };
+
+    return (
+        <div ref={ref} className="relative">
+            <button type="button" onClick={()=>setOpen(o=>!o)}
+                className={`w-full flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 border ${open?'border-indigo-500 ring-1 ring-indigo-500/30':'border-slate-200 dark:border-white/10'} rounded-2xl px-4 py-3.5 text-sm transition-all`}>
+                <Icon name="calendar" className="w-4 h-4 text-indigo-500 shrink-0"/>
+                <span className={`flex-1 text-left font-semibold ${value?'text-slate-800 dark:text-white':'text-slate-400'}`}>{fmt(value)}</span>
+                <Icon name="chevDown" className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${open?'rotate-180':''}`}/>
+            </button>
+            {open && (
+                <div className="absolute top-full mt-2 left-0 z-50">
+                    <MiniCalendar value={value} onChange={onChange} onClose={()=>setOpen(false)}/>
                 </div>
-            );
-        };
+            )}
+        </div>
+    );
+};
 
-        const DescriptionBarChart = ({ transactions }) => {
-            const stats = useMemo(() => {
-                const grouped = transactions.filter(t => t.type === 'expense').reduce((acc, t) => {
-                    const desc = (t.description || 'Sin descripción').trim().toLowerCase();
-                    acc[desc] = (acc[desc] || 0) + t.amount;
-                    return acc;
-                }, {});
-                return Object.entries(grouped).sort((a, b) => b[1] - a[1]);
-            }, [transactions]);
-            const max = Math.max(...stats.map(s => s[1]), 1);
-            return (
-                <div className="w-full max-h-[160px] overflow-y-auto custom-scrollbar space-y-3 pr-1">
-                    {stats.length === 0
-                        ? <div className="h-32 flex items-center justify-center text-slate-400 text-xs">Sin gastos</div>
-                        : stats.map(([desc, amount], i) => (
-                            <div key={i} className="space-y-1 fade-in">
-                                <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
-                                    <span className="truncate w-24 text-slate-500">{desc}</span>
-                                    <span className="text-slate-900 dark:text-white">${amount.toLocaleString()}</span>
-                                </div>
-                                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: (amount / max) * 100 + "%" }}></div>
-                                </div>
-                            </div>
-                        ))
-                    }
-                </div>
-            );
-        };
+// ─── DESCRIPTION PICKER ───────────────────────────────────────────────────────
+// Manages a list of saved descriptions per user; user can pick, add, edit, delete
+const DescriptionPicker = ({ value, onChange, savedDescs, onSavedDescsChange, transactionType }) => {
+    const [open,      setOpen]      = useState(false);
+    const [filter,    setFilter]    = useState('');
+    const [editingId, setEditingId] = useState(null);
+    const [editVal,   setEditVal]   = useState('');
+    const [newMode,   setNewMode]   = useState(false);
+    const [newVal,    setNewVal]    = useState('');
+    const ref = useRef(null);
+    const inputRef = useRef(null);
 
-        // --- ASISTENTE IA CON GROQ ---
-        const AISidebar = ({ transactions }) => {
-            const [messages, setMessages] = useState([]);
-            const [input, setInput] = useState('');
-            const [isLoading, setIsLoading] = useState(false);
-            const scrollRef = useRef(null);
+    useEffect(()=>{
+        const h = e => { if(ref.current&&!ref.current.contains(e.target)){setOpen(false);setNewMode(false);setEditingId(null);} };
+        document.addEventListener('mousedown',h);
+        return ()=>document.removeEventListener('mousedown',h);
+    },[]);
 
-            useEffect(() => {
-                scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-            }, [messages, isLoading]);
+    // Filter by type and search text
+    const filtered = useMemo(()=>
+        savedDescs
+            .filter(d => d.type === transactionType || d.type === 'all')
+            .filter(d => d.text.toLowerCase().includes(filter.toLowerCase()))
+    ,[savedDescs, filter, transactionType]);
 
-            const buildSystemPrompt = () => {
-                const expenses = transactions.filter(t => t.type === 'expense');
-                const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-                const totalExpense = expenses.reduce((s, t) => s + t.amount, 0);
-                const balance = totalIncome - totalExpense;
-                const topExpenses = expenses
-                    .reduce((acc, t) => { acc[t.description] = (acc[t.description] || 0) + t.amount; return acc; }, {});
-                const topList = Object.entries(topExpenses).sort((a, b) => b[1] - a[1]).slice(0, 5)
-                    .map(([k, v]) => `${k}: $${v}`).join(', ');
+    const handleSelect = (text) => { onChange(text); setFilter(''); setOpen(false); };
 
-                return `Eres FinanzaPro AI, un asistente financiero personal experto y amigable. Hablas en español, eres conciso y directo.
-Datos financieros actuales del usuario:
-- Ingresos totales: $${totalIncome.toLocaleString()}
-- Gastos totales: $${totalExpense.toLocaleString()}
-- Balance: $${balance.toLocaleString()}
-- Principales gastos: ${topList || 'Sin datos aún'}
-Número de transacciones: ${transactions.length}
-Responde siempre en español. Sé útil, empático y da consejos prácticos basados en sus datos reales. Máximo 3 oraciones por respuesta.`;
-            };
+    const handleAddNew = () => {
+        const txt = newVal.trim();
+        if(!txt) return;
+        if(savedDescs.some(d=>d.text.toLowerCase()===txt.toLowerCase()&&(d.type===transactionType||d.type==='all'))) return;
+        onSavedDescsChange([...savedDescs, { id: Date.now(), text: txt, type: transactionType }]);
+        onChange(txt);
+        setNewVal(''); setNewMode(false); setOpen(false);
+    };
 
-            const handleSend = async () => {
-                const userText = input.trim() || "Dame un consejo financiero basado en mis datos";
-                if (isLoading) return;
+    const handleEdit = (id) => {
+        const txt = editVal.trim();
+        if(!txt) return;
+        onSavedDescsChange(savedDescs.map(d => d.id===id ? {...d, text: txt} : d));
+        if(value === savedDescs.find(d=>d.id===id)?.text) onChange(txt);
+        setEditingId(null);
+    };
 
-                const newMessages = [...messages, { role: 'user', text: userText }];
-                setMessages(newMessages);
-                setInput('');
-                setIsLoading(true);
+    const handleDelete = (id) => { onSavedDescsChange(savedDescs.filter(d=>d.id!==id)); };
 
-                try {
-                    const apiMessages = [
-                        { role: 'system', content: buildSystemPrompt() },
-                        ...newMessages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }))
-                    ];
-                    const reply = await askGroq(apiMessages);
-                    setMessages(prev => [...prev, { role: 'ai', text: reply }]);
-                } catch (err) {
-                    setMessages(prev => [...prev, { role: 'ai', text: '⚠️ Error al conectar con la IA. Verifica tu conexión.' }]);
-                } finally {
-                    setIsLoading(false);
-                }
-            };
+    // Save current typed value as new desc
+    const canSaveTyped = value.trim().length > 0 && !savedDescs.some(d=>d.text.toLowerCase()===value.trim().toLowerCase()&&(d.type===transactionType||d.type==='all'));
 
-            return (
-                <Card className="h-full flex flex-col overflow-hidden bg-slate-900 border-none shadow-premium relative" noPadding>
+    const typeColor = transactionType === 'income'
+        ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20'
+        : 'text-rose-500 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20';
+
+    return (
+        <div ref={ref} className="relative">
+            {/* Main input */}
+            <div className={`flex items-center bg-slate-50 dark:bg-slate-800/60 border ${open?'border-indigo-500 ring-1 ring-indigo-500/30':'border-slate-200 dark:border-white/10'} rounded-2xl transition-all overflow-hidden`}>
+                <Icon name="tag" className="w-4 h-4 text-slate-400 ml-4 shrink-0"/>
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={value}
+                    onChange={e=>{ onChange(e.target.value); setFilter(e.target.value); if(!open) setOpen(true); }}
+                    onFocus={()=>setOpen(true)}
+                    placeholder="Escribe o elige una descripción…"
+                    className="flex-1 bg-transparent px-3 py-3.5 text-sm text-slate-800 dark:text-white placeholder-slate-400 outline-none"
+                />
+                {/* Save current as new shortcut */}
+                {canSaveTyped && (
+                    <button type="button" title="Guardar como descripción rápida" onClick={()=>{
+                        onSavedDescsChange([...savedDescs, { id: Date.now(), text: value.trim(), type: transactionType }]);
+                    }} className="px-3 py-2 mr-1 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-colors shrink-0" >
+                        <Icon name="bookmark" className="w-4 h-4"/>
+                    </button>
+                )}
+                <button type="button" onClick={()=>setOpen(o=>!o)} className="px-3 py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors shrink-0 mr-1">
+                    <Icon name="chevDown" className={`w-3.5 h-3.5 transition-transform duration-200 ${open?'rotate-180':''}`}/>
+                </button>
+            </div>
+
+            {/* Dropdown */}
+            {open && (
+                <div className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-premium z-50 overflow-hidden pop-in">
                     {/* Header */}
-                    <div className="p-4 border-b border-white/10 flex items-center gap-3 bg-white/5 backdrop-blur-xl relative overflow-hidden">
-                        <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-end pr-4">
-                            <Icon name="brain" className="w-20 h-20 text-indigo-300" />
-                        </div>
-                        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/40 animate-pulse">
-                            <Icon name="brain" className="text-white w-5 h-5" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-white text-sm">Analista IA</h3>
-                            <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest leading-none">Groq · LLaMA3</span>
-                        </div>
+                    <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Descripciones guardadas</span>
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${typeColor}`}>
+                            {transactionType === 'income' ? 'Ingresos' : 'Gastos'}
+                        </span>
                     </div>
 
-                    {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-900/40">
-                        {messages.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-center opacity-30 px-4 space-y-3">
-                                <Icon name="sparkles" className="w-10 h-10 text-indigo-400" />
-                                <p className="text-[10px] text-slate-300">
-                                    ¿Quieres un consejo sobre ahorros o gastos? Analizo tus datos reales al instante con IA de Groq.
-                                </p>
-                            </div>
-                        ) : messages.map((m, i) => (
-                            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} fade-in`}>
-                                <div className={`max-w-[85%] rounded-2xl p-3 text-[11px] leading-relaxed ${m.role === 'user'
-                                    ? 'bg-indigo-600 text-white rounded-tr-none'
-                                    : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'}`}>
-                                    {m.text}
-                                </div>
-                            </div>
-                        ))}
-
-                        {isLoading && (
-                            <div className="flex justify-start fade-in">
-                                <div className="bg-slate-800 border border-white/5 rounded-2xl rounded-tl-none p-3 flex items-center gap-1.5">
-                                    <span className="typing-dot w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block"></span>
-                                    <span className="typing-dot w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block"></span>
-                                    <span className="typing-dot w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block"></span>
-                                </div>
+                    {/* List */}
+                    <div className="max-h-48 overflow-y-auto custom-scrollbar">
+                        {filtered.length === 0 && !newMode && (
+                            <div className="px-4 py-6 text-center text-xs text-slate-400 italic">
+                                {filter ? `Sin resultados para "${filter}"` : 'Sin descripciones guardadas aún'}
                             </div>
                         )}
-                        <div ref={scrollRef} />
+                        {filtered.map(d => (
+                            <div key={d.id} className="group flex items-center gap-2 px-3 py-2 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                {editingId === d.id ? (
+                                    <div className="flex-1 flex items-center gap-2">
+                                        <input autoFocus value={editVal} onChange={e=>setEditVal(e.target.value)}
+                                            onKeyDown={e=>{ if(e.key==='Enter') handleEdit(d.id); if(e.key==='Escape') setEditingId(null); }}
+                                            className="flex-1 bg-slate-100 dark:bg-white/5 rounded-lg px-2 py-1 text-xs text-slate-800 dark:text-white outline-none border border-indigo-300 dark:border-indigo-500/50"/>
+                                        <button onClick={()=>handleEdit(d.id)} className="p-1 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors"><Icon name="check" className="w-3.5 h-3.5"/></button>
+                                        <button onClick={()=>setEditingId(null)} className="p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors"><Icon name="x" className="w-3.5 h-3.5"/></button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <button onClick={()=>handleSelect(d.text)} className="flex-1 text-left text-xs font-medium text-slate-700 dark:text-slate-200 truncate py-1">
+                                            {d.text}
+                                        </button>
+                                        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                            <button onClick={()=>{setEditingId(d.id);setEditVal(d.text);}} className="p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors">
+                                                <Icon name="pencil" className="w-3 h-3"/>
+                                            </button>
+                                            <button onClick={()=>handleDelete(d.id)} className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors">
+                                                <Icon name="trash" className="w-3 h-3"/>
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Input */}
-                    <div className="p-3 bg-white/5 border-t border-white/10 flex gap-2">
-                        <input
-                            value={input}
-                            onChange={e => setInput(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && handleSend()}
-                            placeholder="Pregunta algo sobre tus finanzas..."
-                            disabled={isLoading}
-                            className="flex-1 bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:ring-1 focus:ring-indigo-500 placeholder-white/30 disabled:opacity-50 transition-all"
-                        />
-                        <button
-                            onClick={handleSend}
-                            disabled={isLoading}
-                            className="p-2 bg-indigo-600 text-white rounded-xl active:scale-90 transition-transform disabled:opacity-50 hover:bg-indigo-500">
-                            <Icon name="send" className="w-4 h-4" />
+                    {/* Add new */}
+                    <div className="border-t border-slate-100 dark:border-white/5">
+                        {newMode ? (
+                            <div className="flex items-center gap-2 px-3 py-2.5">
+                                <Icon name="plus" className="w-3.5 h-3.5 text-indigo-500 shrink-0"/>
+                                <input autoFocus value={newVal} onChange={e=>setNewVal(e.target.value)}
+                                    onKeyDown={e=>{ if(e.key==='Enter') handleAddNew(); if(e.key==='Escape'){setNewMode(false);setNewVal('');} }}
+                                    placeholder="Nueva descripción…"
+                                    className="flex-1 bg-slate-100 dark:bg-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-800 dark:text-white outline-none border border-indigo-300 dark:border-indigo-500/50"/>
+                                <button onClick={handleAddNew} className="p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors shrink-0"><Icon name="check" className="w-3 h-3"/></button>
+                                <button onClick={()=>{setNewMode(false);setNewVal('');}} className="p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors shrink-0"><Icon name="x" className="w-3 h-3"/></button>
+                            </div>
+                        ) : (
+                            <button onClick={()=>setNewMode(true)} className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors">
+                                <Icon name="plus" className="w-3.5 h-3.5"/>
+                                Agregar descripción guardada
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// ─── GRÁFICAS ──────────────────────────────────────────────────────────────────
+const SVGPieChart = ({ data }) => {
+    const total = data.reduce((acc,item)=>acc+item.value,0);
+    let cur = 0;
+    const colors=['#6366f1','#ec4899','#10b981','#f59e0b','#06b6d4'];
+    if(!total) return <div className="h-40 flex items-center justify-center text-slate-400 text-xs italic">Sin datos</div>;
+    return (
+        <div className="relative w-36 h-36 mx-auto group">
+            <svg viewBox="0 0 100 100" className="transform -rotate-90 w-full h-full overflow-visible transition-transform duration-700 group-hover:scale-105">
+                {data.map((item,i)=>{
+                    const pct=item.value/total, da=pct*314, color=colors[i%colors.length];
+                    const el=<circle key={item.name} r="25" cx="50" cy="50" fill="transparent" stroke={color} strokeWidth="50" strokeDasharray={`${da} 314`} style={{transformOrigin:'50px 50px',transform:`rotate(${cur}rad)`,transition:'all .6s'}}><title>{item.name}: ${item.value.toLocaleString()}</title></circle>;
+                    cur+=pct*2*Math.PI; return el;
+                })}
+                <circle cx="50" cy="50" r="28" className="fill-white dark:fill-slate-900"/>
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <span className="text-[8px] uppercase font-bold text-slate-400">Total</span>
+                <span className="text-xs font-black text-slate-900 dark:text-white">${total.toLocaleString()}</span>
+            </div>
+        </div>
+    );
+};
+const SVGBarChart = ({ income, expense }) => {
+    const max = Math.max(income,expense,100);
+    return (
+        <div className="h-40 flex items-end justify-center gap-6 px-4">
+            {[{label:'In',val:income,col:'bg-emerald-500'},{label:'Out',val:expense,col:'bg-rose-500'}].map((item,i)=>(
+                <div key={i} className="flex-1 flex flex-col items-center group h-full justify-end">
+                    <div className="mb-1 opacity-0 group-hover:opacity-100 transition-all text-[8px] font-bold bg-slate-800 text-white px-1.5 py-0.5 rounded shadow-lg">${item.val.toLocaleString()}</div>
+                    <div className={`${item.col} w-full rounded-xl shadow-lg transition-all duration-1000`} style={{height:`${(item.val/max)*100}%`,minHeight:'8px'}}/>
+                    <span className="mt-2 text-[10px] font-bold text-slate-500">{item.label}</span>
+                </div>
+            ))}
+        </div>
+    );
+};
+const DescriptionBarChart = ({ transactions }) => {
+    const stats = useMemo(()=>{
+        const g=transactions.filter(t=>t.type==='expense').reduce((acc,t)=>{ const d=(t.description||'Sin desc.').trim().toLowerCase(); acc[d]=(acc[d]||0)+t.amount; return acc;},{});
+        return Object.entries(g).sort((a,b)=>b[1]-a[1]);
+    },[transactions]);
+    const max=Math.max(...stats.map(s=>s[1]),1);
+    return (
+        <div className="w-full max-h-[160px] overflow-y-auto custom-scrollbar space-y-3 pr-1">
+            {stats.length===0?<div className="h-32 flex items-center justify-center text-slate-400 text-xs">Sin gastos</div>
+                :stats.map(([desc,amount],i)=>(
+                    <div key={i} className="space-y-1 fade-in">
+                        <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
+                            <span className="truncate w-24 text-slate-500">{desc}</span>
+                            <span className="text-slate-900 dark:text-white">${amount.toLocaleString()}</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-indigo-500 transition-all duration-1000" style={{width:(amount/max)*100+"%"}}/>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    );
+};
+
+// ─── AI SIDEBAR ────────────────────────────────────────────────────────────────
+const AISidebar = ({ transactions }) => {
+    const [messages,setMessages]=useState([]); const [input,setInput]=useState(''); const [loading,setLoading]=useState(false);
+    const scrollRef=useRef(null);
+    useEffect(()=>{ scrollRef.current?.scrollIntoView({behavior:"smooth"}); },[messages,loading]);
+    const buildSys = () => {
+        const inc=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+        const exp=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+        const top=transactions.filter(t=>t.type==='expense').reduce((acc,t)=>{acc[t.description]=(acc[t.description]||0)+t.amount;return acc;},{});
+        const topList=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`${k}: $${v}`).join(', ');
+        return `Eres FinanzaPro AI, asistente financiero en español. Sé conciso y empático. Datos: Ingresos $${inc.toLocaleString()}, Gastos $${exp.toLocaleString()}, Balance $${(inc-exp).toLocaleString()}. Top gastos: ${topList||'Sin datos'}. Transacciones: ${transactions.length}. Máximo 3 oraciones. Siempre en español.`;
+    };
+    const handleSend = async () => {
+        const txt=input.trim()||"Dame un consejo financiero"; if(loading) return;
+        const nm=[...messages,{role:'user',text:txt}]; setMessages(nm); setInput(''); setLoading(true);
+        try { const r=await askGroq([{role:'system',content:buildSys()},...nm.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}))]); setMessages(p=>[...p,{role:'ai',text:r}]); }
+        catch { setMessages(p=>[...p,{role:'ai',text:'⚠️ Error al conectar. Verifica tu conexión.'}]); }
+        finally { setLoading(false); }
+    };
+    return (
+        <Card className="h-full flex flex-col overflow-hidden bg-slate-900 border-none shadow-premium" noPadding>
+            <div className="p-4 border-b border-white/10 flex items-center gap-3 bg-white/5 backdrop-blur-xl relative overflow-hidden">
+                <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-end pr-4"><Icon name="brain" className="w-20 h-20 text-indigo-300"/></div>
+                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/40 animate-pulse"><Icon name="brain" className="text-white w-5 h-5"/></div>
+                <div><h3 className="font-bold text-white text-sm">Analista IA</h3><span className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">Groq · LLaMA3</span></div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-900/40">
+                {messages.length===0?<div className="h-full flex flex-col items-center justify-center text-center opacity-30 px-4 space-y-3"><Icon name="sparkles" className="w-10 h-10 text-indigo-400"/><p className="text-[10px] text-slate-300">¿Quieres un consejo sobre ahorros o gastos? Analizo tus datos reales con IA.</p></div>
+                    :messages.map((m,i)=>(
+                        <div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'} fade-in`}>
+                            <div className={`max-w-[85%] rounded-2xl p-3 text-[11px] leading-relaxed ${m.role==='user'?'bg-indigo-600 text-white rounded-tr-none':'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'}`}>{m.text}</div>
+                        </div>
+                    ))}
+                {loading&&<div className="flex justify-start fade-in"><div className="bg-slate-800 border border-white/5 rounded-2xl rounded-tl-none p-3 flex items-center gap-1.5"><span className="typing-dot w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block"/><span className="typing-dot w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block"/><span className="typing-dot w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block"/></div></div>}
+                <div ref={scrollRef}/>
+            </div>
+            <div className="p-3 bg-white/5 border-t border-white/10 flex gap-2">
+                <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleSend()} placeholder="Pregunta algo sobre tus finanzas..." disabled={loading} className="flex-1 bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:ring-1 focus:ring-indigo-500 placeholder-white/30 disabled:opacity-50 transition-all"/>
+                <button onClick={handleSend} disabled={loading} className="p-2 bg-indigo-600 text-white rounded-xl active:scale-90 transition-transform disabled:opacity-50 hover:bg-indigo-500"><Icon name="send" className="w-4 h-4"/></button>
+            </div>
+        </Card>
+    );
+};
+
+// ─── ACCOUNT MENU ─────────────────────────────────────────────────────────────
+const AccountMenu = ({ displayName, onLogout, onChangePass, onChangeUsername, onDeleteAccount }) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+    useEffect(()=>{ const h=e=>{if(ref.current&&!ref.current.contains(e.target))setOpen(false);}; document.addEventListener('mousedown',h); return()=>document.removeEventListener('mousedown',h); },[]);
+    const initials = displayName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const items = [
+        {icon:'pencil',label:'Cambiar nombre',     action:onChangeUsername},
+        {icon:'lock',  label:'Cambiar contraseña', action:onChangePass},
+        {divider:true},
+        {icon:'trash', label:'Eliminar cuenta',    action:onDeleteAccount, danger:true},
+        {divider:true},
+        {icon:'logout',label:'Cerrar sesión',      action:onLogout,        danger:true},
+    ];
+    return (
+        <div ref={ref} className="relative">
+            <button onClick={()=>setOpen(o=>!o)} className="flex items-center gap-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 px-3 py-1.5 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95">
+                <div className="w-7 h-7 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-[10px] font-black shadow-sm">{initials}</div>
+                <span className="text-xs font-bold max-w-[100px] truncate">{displayName}</span>
+                <Icon name="settings" className="w-3.5 h-3.5 text-slate-400"/>
+            </button>
+            {open&&(
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-premium overflow-hidden z-50 fade-in">
+                    <div className="px-4 py-3 border-b border-slate-100 dark:border-white/5"><p className="text-xs font-black text-slate-900 dark:text-white">{displayName}</p><p className="text-[10px] text-slate-400 mt-0.5">Cuenta activa</p></div>
+                    {items.map((item,i)=>item.divider?<div key={i} className="border-t border-slate-100 dark:border-white/5 my-1"/>:(
+                        <button key={i} onClick={()=>{setOpen(false);item.action();}} className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium transition-colors ${item.danger?'text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10':'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'}`}>
+                            <Icon name={item.icon} className="w-3.5 h-3.5"/>{item.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// ─── CATEGORY PICKER ──────────────────────────────────────────────────────────
+const CategoryPicker = ({ value, onChange, categories, onCategoriesChange }) => {
+    const [open,     setOpen]     = useState(false);
+    const [newMode,  setNewMode]  = useState(false);
+    const [newVal,   setNewVal]   = useState('');
+    const [delConfirm, setDelConfirm] = useState(null); // id of category pending delete confirm
+    const ref = useRef(null);
+
+    const DEFAULT_CATS = ['Comida','Salario','Hogar','Transporte','Salud','Ocio','General'];
+
+    useEffect(()=>{
+        const h = e => { if(ref.current&&!ref.current.contains(e.target)){ setOpen(false); setNewMode(false); setDelConfirm(null); } };
+        document.addEventListener('mousedown', h);
+        return ()=>document.removeEventListener('mousedown', h);
+    },[]);
+
+    const handleAdd = () => {
+        const txt = newVal.trim();
+        if(!txt) return;
+        if(categories.some(c=>c.toLowerCase()===txt.toLowerCase())) return;
+        const updated = [...categories, txt];
+        onCategoriesChange(updated);
+        onChange(txt);
+        setNewVal(''); setNewMode(false); setOpen(false);
+    };
+
+    const handleDelete = (cat) => {
+        if(DEFAULT_CATS.includes(cat)) return; // protect defaults
+        const updated = categories.filter(c=>c!==cat);
+        onCategoriesChange(updated);
+        if(value===cat) onChange(updated[0]||'General');
+        setDelConfirm(null);
+    };
+
+    const isDefault = (cat) => DEFAULT_CATS.includes(cat);
+
+    return (
+        <div ref={ref} className="relative">
+            {/* Trigger button */}
+            <button type="button" onClick={()=>setOpen(o=>!o)}
+                className={`w-full flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 border ${open?'border-indigo-500 ring-1 ring-indigo-500/30':'border-slate-200 dark:border-white/10'} rounded-2xl px-4 py-3.5 text-sm transition-all`}>
+                <Icon name="tag" className="w-4 h-4 text-indigo-500 shrink-0"/>
+                <span className="flex-1 text-left font-semibold text-slate-800 dark:text-white truncate">{value}</span>
+                <Icon name="chevDown" className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${open?'rotate-180':''}`}/>
+            </button>
+
+            {open && (
+                <div className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-premium z-50 overflow-hidden pop-in">
+                    {/* Header */}
+                    <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Categorías</span>
+                        <span className="text-[9px] text-slate-400">{categories.length} total</span>
+                    </div>
+
+                    {/* List */}
+                    <div className="max-h-44 overflow-y-auto custom-scrollbar">
+                        {categories.map((cat, i) => (
+                            <div key={i} className={`group flex items-center gap-2 px-3 py-2 transition-colors ${value===cat?'bg-indigo-50 dark:bg-indigo-500/10':'hover:bg-slate-50 dark:hover:bg-white/5'}`}>
+                                <button type="button" onClick={()=>{ onChange(cat); setOpen(false); }}
+                                    className="flex-1 text-left flex items-center gap-2.5">
+                                    <div className={`w-2 h-2 rounded-full shrink-0 ${value===cat?'bg-indigo-500':'bg-slate-300 dark:bg-slate-600'}`}/>
+                                    <span className={`text-xs font-semibold ${value===cat?'text-indigo-600 dark:text-indigo-400':'text-slate-700 dark:text-slate-200'}`}>{cat}</span>
+                                    {isDefault(cat) && <span className="text-[8px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-wide ml-auto pr-1">predeterminada</span>}
+                                </button>
+
+                                {/* Delete — only custom cats */}
+                                {!isDefault(cat) && (
+                                    delConfirm === cat ? (
+                                        <div className="flex items-center gap-1 shrink-0 fade-in">
+                                            <span className="text-[9px] text-rose-500 font-bold">¿Eliminar?</span>
+                                            <button type="button" onClick={()=>handleDelete(cat)} className="p-1 bg-rose-500 text-white rounded-md hover:bg-rose-600 transition-colors"><Icon name="check" className="w-3 h-3"/></button>
+                                            <button type="button" onClick={()=>setDelConfirm(null)} className="p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-md transition-colors"><Icon name="x" className="w-3 h-3"/></button>
+                                        </div>
+                                    ) : (
+                                        <button type="button" onClick={()=>setDelConfirm(cat)}
+                                            className="p-1.5 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all shrink-0">
+                                            <Icon name="trash" className="w-3 h-3"/>
+                                        </button>
+                                    )
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Add new */}
+                    <div className="border-t border-slate-100 dark:border-white/5">
+                        {newMode ? (
+                            <div className="flex items-center gap-2 px-3 py-2.5">
+                                <Icon name="plus" className="w-3.5 h-3.5 text-indigo-500 shrink-0"/>
+                                <input autoFocus value={newVal} onChange={e=>setNewVal(e.target.value)}
+                                    onKeyDown={e=>{ if(e.key==='Enter') handleAdd(); if(e.key==='Escape'){setNewMode(false);setNewVal('');} }}
+                                    placeholder="Nombre de categoría…"
+                                    className="flex-1 bg-slate-100 dark:bg-white/5 rounded-lg px-2 py-1.5 text-xs text-slate-800 dark:text-white outline-none border border-indigo-300 dark:border-indigo-500/50"/>
+                                <button type="button" onClick={handleAdd} className="p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors shrink-0"><Icon name="check" className="w-3 h-3"/></button>
+                                <button type="button" onClick={()=>{setNewMode(false);setNewVal('');}} className="p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors shrink-0"><Icon name="x" className="w-3 h-3"/></button>
+                            </div>
+                        ) : (
+                            <button type="button" onClick={()=>setNewMode(true)}
+                                className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors">
+                                <Icon name="plus" className="w-3.5 h-3.5"/>
+                                Nueva categoría
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// ─── TRANSACTION MODAL (fully controlled) ─────────────────────────────────────
+const TransactionModal = ({ editing, categories, onCategoriesChange, savedDescs, onSavedDescsChange, onSave, onClose }) => {
+    const today = new Date().toISOString().split('T')[0];
+    const [type,     setType]     = useState(editing?.type     || 'expense');
+    const [amount,   setAmount]   = useState(editing?.amount   ? String(editing.amount) : '');
+    const [desc,     setDesc]     = useState(editing?.description || '');
+    const [category, setCategory] = useState(editing?.category || 'General');
+    const [date,     setDate]     = useState(editing?.date     || today);
+
+    const handleSubmit = () => {
+        if(!amount || Number(amount) <= 0 || !desc.trim() || !date) return;
+        onSave({ id: editing?.id, type, amount: Number(amount), description: desc.trim(), category, date });
+    };
+
+    return (
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xl z-[100] flex items-center justify-center p-4 fade-in text-slate-900 dark:text-white">
+            <Card className="w-full max-w-lg relative scale-in shadow-premium border-none" noPadding>
+                <div className="p-8">
+                    {/* Header */}
+                    <button onClick={onClose} className="absolute top-6 right-6 p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-colors">
+                        <Icon name="x"/>
+                    </button>
+                    <h2 className="text-2xl font-black mb-7 flex items-center gap-4">
+                        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl">
+                            <Icon name={editing?'edit':'plus'} className="w-6 h-6 text-indigo-600"/>
+                        </div>
+                        {editing?'Editar':'Añadir'} Registro
+                    </h2>
+
+                    <div className="space-y-5">
+                        {/* Tipo */}
+                        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl flex gap-1 shadow-inner">
+                            {['expense','income'].map(tp=>(
+                                <button key={tp} type="button" onClick={()=>setType(tp)}
+                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${type===tp?'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm':'text-slate-500'}`}>
+                                    {tp==='income'?'Ingreso':'Gasto'}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Monto */}
+                        <div className="relative">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300 dark:text-slate-600 pointer-events-none">$</span>
+                            <input type="number" step="0.01" min="0.01" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0.00" autoFocus
+                                className="w-full bg-slate-50 dark:bg-slate-800/60 border-2 border-transparent focus:border-indigo-500 rounded-3xl pl-12 pr-6 py-5 text-4xl font-black outline-none transition-all dark:text-white"/>
+                        </div>
+
+                        {/* Descripción con gestor */}
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-2">
+                                Descripción
+                                <span className="normal-case font-medium text-slate-300 dark:text-slate-500">— escribe o elige una guardada</span>
+                            </label>
+                            <DescriptionPicker
+                                value={desc}
+                                onChange={setDesc}
+                                savedDescs={savedDescs}
+                                onSavedDescsChange={onSavedDescsChange}
+                                transactionType={type}
+                            />
+                        </div>
+
+                        {/* Categoría + Fecha */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Categoría</label>
+                                <CategoryPicker
+                                    value={category}
+                                    onChange={setCategory}
+                                    categories={categories}
+                                    onCategoriesChange={onCategoriesChange}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Fecha</label>
+                                <DatePickerField value={date} onChange={setDate}/>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Submit */}
+                    <button onClick={handleSubmit} disabled={!amount||Number(amount)<=0||!desc.trim()}
+                        className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-base mt-6 shadow-xl shadow-indigo-600/30 active:scale-95 transition-all hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <Icon name={editing?'check':'plus'} className="w-5 h-5"/>
+                        Guardar Movimiento
+                    </button>
+                </div>
+            </Card>
+        </div>
+    );
+};
+
+// ─── DASHBOARD ─────────────────────────────────────────────────────────────────
+const Dashboard = ({ session, onLogout, onUpdateSession }) => {
+    const { username, displayName } = session;
+    const uk = username;
+
+    const [darkMode,     setDarkMode]     = useState(()=>JSON.parse(localStorage.getItem('fp_dark_'+uk)||'false'));
+    const [transactions, setTransactions] = useState(()=>JSON.parse(localStorage.getItem('fp_data_'+uk)||'[]'));
+    const [categories,   setCategories]   = useState(()=>JSON.parse(localStorage.getItem('fp_cats_'+uk)||'["Comida","Salario","Hogar","Transporte","Salud","Ocio","General"]'));
+    const [savedDescs,   setSavedDescs]   = useState(()=>JSON.parse(localStorage.getItem('fp_descs_'+uk)||'[]'));
+
+    const [modalOpen,          setModalOpen]          = useState(false);
+    const [editingTransaction, setEditingTransaction] = useState(null);
+    const [activeModal,        setActiveModal]        = useState(null);
+
+    useEffect(()=>{ document.documentElement.classList.toggle('dark',darkMode); localStorage.setItem('fp_dark_'+uk,JSON.stringify(darkMode)); },[darkMode,uk]);
+    useEffect(()=>{ localStorage.setItem('fp_data_'+uk,JSON.stringify(transactions)); },[transactions,uk]);
+    useEffect(()=>{ localStorage.setItem('fp_cats_'+uk,JSON.stringify(categories)); },[categories,uk]);
+    useEffect(()=>{ localStorage.setItem('fp_descs_'+uk,JSON.stringify(savedDescs)); },[savedDescs,uk]);
+
+    const stats = useMemo(()=>{
+        const inc=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+        const exp=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+        const byCat=transactions.filter(t=>t.type==='expense').reduce((acc,t)=>{ const n=(t.category||'General').trim(); acc[n]=(acc[n]||0)+t.amount; return acc; },{});
+        return{inc,exp,bal:inc-exp,cData:Object.entries(byCat).map(([name,value])=>({name,value}))};
+    },[transactions]);
+
+    const handleSave = (t) => {
+        if(t.id) setTransactions(p=>p.map(x=>x.id===t.id?t:x));
+        else setTransactions(p=>[{...t,id:Date.now()},...p]);
+        setModalOpen(false); setEditingTransaction(null);
+    };
+    const closeModal = () => setActiveModal(null);
+
+    return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 pb-20 text-slate-900 dark:text-white">
+            {/* Navbar */}
+            <nav className="h-16 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-40 px-8 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                    <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg"><Icon name="wallet"/></div>
+                    <span className="font-black text-xl tracking-tighter">Finanza<span className="text-indigo-600">Pro</span></span>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button onClick={()=>setDarkMode(d=>!d)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-sm transition-transform active:scale-90">
+                        {darkMode?<Icon name="sun" className="text-amber-400"/>:<Icon name="moon" className="text-indigo-600"/>}
+                    </button>
+                    <AccountMenu displayName={displayName} onLogout={onLogout}
+                        onChangePass={()=>setActiveModal('changePass')}
+                        onChangeUsername={()=>setActiveModal('changeUsername')}
+                        onDeleteAccount={()=>setActiveModal('deleteAccount')}/>
+                </div>
+            </nav>
+
+            <main className="max-w-[1600px] mx-auto px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-9 space-y-8">
+                    {/* Header */}
+                    <div className="flex justify-between items-end">
+                        <div>
+                            <h1 className="text-4xl font-black tracking-tight">Panel de {displayName}</h1>
+                            <p className="text-slate-500 text-sm mt-1">Los cambios se sincronizan automáticamente.</p>
+                        </div>
+                        <button onClick={()=>{setEditingTransaction(null);setModalOpen(true);}}
+                            className="px-4 py-2.5 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover-lift shadow-lg shadow-indigo-600/30 active:scale-95 transition-all flex items-center gap-1.5">
+                            <Icon name="plus" className="w-4 h-4"/><span>Nuevo Registro</span>
                         </button>
                     </div>
-                </Card>
-            );
-        };
 
-        // --- COMPONENTE PRINCIPAL ---
-        function App() {
-            const [users, setUsers] = useState(() => JSON.parse(localStorage.getItem('fp_users')) || ['Personal']);
-            const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('fp_current_user') || 'Personal');
-            const [darkMode, setDarkMode] = useState(false);
-            const [transactions, setTransactions] = useState([]);
-            const [categories, setCategories] = useState([]);
-            const [userModal, setUserModal] = useState({ isOpen: false, type: 'add', value: '' });
-            const [modalOpen, setModalOpen] = useState(false);
-            const [editingTransaction, setEditingTransaction] = useState(null);
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <Card className="hover-lift border-b-4 border-emerald-500 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute -right-3 -bottom-3 opacity-[0.06] pointer-events-none"><Icon name="up" className="w-24 h-24 text-emerald-600"/></div>
+                            <div className="flex justify-between items-start"><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ingresos</span><Icon name="up" className="w-5 h-5 text-emerald-500"/></div>
+                            <p className="text-2xl font-black text-emerald-600 mt-2">${stats.inc.toLocaleString()}</p>
+                        </Card>
+                        <Card className="hover-lift border-b-4 border-rose-500 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute -right-3 -bottom-3 opacity-[0.06] pointer-events-none"><Icon name="down" className="w-24 h-24 text-rose-600"/></div>
+                            <div className="flex justify-between items-start"><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gastos</span><Icon name="down" className="w-5 h-5 text-rose-500"/></div>
+                            <p className="text-2xl font-black text-rose-600 mt-2">${stats.exp.toLocaleString()}</p>
+                        </Card>
+                        <Card className={`hover-lift border-0 bg-gradient-to-br ${stats.bal>=0?'from-indigo-600 to-violet-700':'from-rose-600 to-orange-600'} text-white shadow-2xl flex flex-col justify-between relative overflow-hidden`}>
+                            <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none"><Icon name="wallet" className="w-28 h-28 text-white"/></div>
+                            <div className="flex justify-between items-start"><span className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Balance</span><Icon name={stats.bal>=0?"up":"down"} className="w-5 h-5 opacity-80"/></div>
+                            <p className="text-2xl font-black mt-2">${stats.bal.toLocaleString()}</p>
+                        </Card>
+                    </div>
 
-            useEffect(() => {
-                const userKey = currentUser.replace(/\s/g, '_');
-                const savedData = JSON.parse(localStorage.getItem('fp_data_' + userKey)) || [];
-                const savedCats = JSON.parse(localStorage.getItem('fp_cats_' + userKey)) || ['Comida', 'Salario', 'Hogar', 'Transporte', 'Salud', 'Ocio'];
-                const savedDark = JSON.parse(localStorage.getItem('fp_dark_' + userKey)) ?? false;
-                setTransactions(savedData);
-                setCategories(savedCats);
-                setDarkMode(savedDark);
-                localStorage.setItem('fp_current_user', currentUser);
-            }, [currentUser]);
+                    {/* Charts */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <Card className="flex flex-col items-center justify-between min-h-[260px] relative overflow-hidden">
+                            <div className="absolute -right-4 -top-4 opacity-[0.04] pointer-events-none"><Icon name="pieChart" className="w-28 h-28 text-indigo-600"/></div>
+                            <h3 className="w-full font-bold text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2"><Icon name="chart" className="w-3 h-3"/>Distribución</h3>
+                            <SVGPieChart data={stats.cData}/>
+                        </Card>
+                        <Card className="flex flex-col justify-between min-h-[260px] relative overflow-hidden">
+                            <div className="absolute -right-4 -top-4 opacity-[0.04] pointer-events-none"><Icon name="barChart" className="w-28 h-28 text-indigo-600"/></div>
+                            <h3 className="font-bold text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2"><Icon name="chart" className="w-3 h-3"/>Rendimiento</h3>
+                            <SVGBarChart income={stats.inc} expense={stats.exp}/>
+                        </Card>
+                        <Card className="flex flex-col justify-between min-h-[260px] relative overflow-hidden">
+                            <div className="absolute -right-4 -top-4 opacity-[0.04] pointer-events-none"><Icon name="calculator" className="w-28 h-28 text-indigo-600"/></div>
+                            <h3 className="font-bold text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2"><Icon name="calculator" className="w-3 h-3"/>Por Descripción</h3>
+                            <DescriptionBarChart transactions={transactions}/>
+                        </Card>
+                    </div>
 
-            useEffect(() => {
-                const userKey = currentUser.replace(/\s/g, '_');
-                localStorage.setItem('fp_data_' + userKey, JSON.stringify(transactions));
-                localStorage.setItem('fp_cats_' + userKey, JSON.stringify(categories));
-                localStorage.setItem('fp_dark_' + userKey, JSON.stringify(darkMode));
-                localStorage.setItem('fp_users', JSON.stringify(users));
-                document.documentElement.classList.toggle('dark', darkMode);
-            }, [transactions, categories, darkMode, users, currentUser]);
-
-            const stats = useMemo(() => {
-                const inc = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-                const exp = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-                const byCat = transactions.filter(t => t.type === 'expense').reduce((acc, t) => {
-                    const name = (t.category || 'General').trim();
-                    acc[name] = (acc[name] || 0) + t.amount;
-                    return acc;
-                }, {});
-                return { inc, exp, bal: inc - exp, cData: Object.entries(byCat).map(([name, value]) => ({ name, value })) };
-            }, [transactions]);
-
-            const handleSaveTransaction = (t) => {
-                if (t.id) setTransactions(prev => prev.map(x => x.id === t.id ? t : x));
-                else setTransactions(prev => [{ ...t, id: Date.now() }, ...prev]);
-                setModalOpen(false);
-                setEditingTransaction(null);
-            };
-
-            const handleAddOrEditUser = () => {
-                const newName = userModal.value.trim();
-                if (!newName || (userModal.type === 'add' && users.includes(newName))) return;
-                if (userModal.type === 'add') {
-                    setUsers(prev => [...prev, newName]);
-                    setCurrentUser(newName);
-                } else {
-                    const oldKey = currentUser.replace(/\s/g, '_');
-                    const newKey = newName.replace(/\s/g, '_');
-                    localStorage.setItem('fp_data_' + newKey, localStorage.getItem('fp_data_' + oldKey));
-                    localStorage.setItem('fp_cats_' + newKey, localStorage.getItem('fp_cats_' + oldKey));
-                    localStorage.setItem('fp_dark_' + newKey, localStorage.getItem('fp_dark_' + oldKey));
-                    localStorage.removeItem('fp_data_' + oldKey);
-                    localStorage.removeItem('fp_cats_' + oldKey);
-                    localStorage.removeItem('fp_dark_' + oldKey);
-                    setUsers(prev => prev.map(u => u === currentUser ? newName : u));
-                    setCurrentUser(newName);
-                }
-                setUserModal({ isOpen: false, type: 'add', value: '' });
-            };
-
-            return (
-                <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 pb-20 text-slate-900 dark:text-white">
-
-                    {/* NAVBAR */}
-                    <nav className="h-16 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-40 px-8 flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg">
-                                <Icon name="wallet" />
-                            </div>
-                            <span className="font-black text-xl tracking-tighter">Finanza<span className="text-indigo-600">Pro</span></span>
+                    {/* Transactions list */}
+                    <Card noPadding className="overflow-hidden shadow-soft relative">
+                        <div className="absolute right-0 top-0 h-full flex items-center pr-8 opacity-[0.03] pointer-events-none"><Icon name="list" className="w-40 h-40 text-indigo-600"/></div>
+                        <div className="p-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
+                            <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2"><Icon name="edit" className="w-4 h-4 text-indigo-500"/>Movimientos Recientes</h3>
+                            {transactions.length>0&&<button onClick={()=>setTransactions([])} className="text-[10px] font-bold text-rose-500 hover:underline">Limpiar Todo</button>}
                         </div>
-
-                        <div className="flex items-center gap-4">
-                            {/* Selector de usuario */}
-                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-2xl border border-slate-200 dark:border-white/10">
-                                <Icon name="user" className="w-4 h-4 text-indigo-500" />
-                                <select
-                                    value={currentUser}
-                                    onChange={(e) => setCurrentUser(e.target.value)}
-                                    className="bg-transparent text-xs font-bold outline-none cursor-pointer pr-1 dark:text-white"
-                                >
-                                    {users.map(u => <option key={u} value={u}>{u}</option>)}
-                                </select>
-                                <div className="flex items-center border-l border-slate-300 dark:border-slate-700 ml-1 pl-1 gap-1">
-                                    <button
-                                        onClick={() => setUserModal({ isOpen: true, type: 'edit', value: currentUser })}
-                                        className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-indigo-500 transition-colors"
-                                        title="Editar Nombre">
-                                        <Icon name="pencil" className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button
-                                        onClick={() => setUserModal({ isOpen: true, type: 'add', value: '' })}
-                                        className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-emerald-500 transition-colors"
-                                        title="Nuevo Perfil">
-                                        <Icon name="plus" className="w-3.5 h-3.5" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Dark mode toggle */}
-                            <button
-                                onClick={() => setDarkMode(!darkMode)}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-sm transition-transform active:scale-90">
-                                {darkMode
-                                    ? <Icon name="sun" className="text-amber-400" />
-                                    : <Icon name="moon" className="text-indigo-600" />}
-                            </button>
-                        </div>
-                    </nav>
-
-                    <main className="max-w-[1600px] mx-auto px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <div className="lg:col-span-9 space-y-8">
-
-                            {/* Header con botón más pequeño */}
-                            <div className="flex justify-between items-end">
-                                <div>
-                                    <h1 className="text-4xl font-black tracking-tight">Panel de {currentUser}</h1>
-                                    <p className="text-slate-500 text-sm mt-1">Los cambios se sincronizan automáticamente.</p>
-                                </div>
-                                <button
-                                    onClick={() => { setEditingTransaction(null); setModalOpen(true); }}
-                                    className="px-4 py-2.5 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover-lift shadow-lg shadow-indigo-600/30 active:scale-95 transition-all flex items-center gap-1.5">
-                                    <Icon name="plus" className="w-4 h-4" />
-                                    <span>Nuevo Registro</span>
-                                </button>
-                            </div>
-
-                            {/* Tarjetas de stats con icono semitransparente */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                <Card className="hover-lift border-b-4 border-emerald-500 flex flex-col justify-between relative overflow-hidden">
-                                    <div className="absolute -right-3 -bottom-3 opacity-[0.06] pointer-events-none">
-                                        <Icon name="up" className="w-24 h-24 text-emerald-600" />
-                                    </div>
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ingresos</span>
-                                        <Icon name="up" className="w-5 h-5 text-emerald-500" />
-                                    </div>
-                                    <p className="text-2xl font-black text-emerald-600 mt-2">${stats.inc.toLocaleString()}</p>
-                                </Card>
-                                <Card className="hover-lift border-b-4 border-rose-500 flex flex-col justify-between relative overflow-hidden">
-                                    <div className="absolute -right-3 -bottom-3 opacity-[0.06] pointer-events-none">
-                                        <Icon name="down" className="w-24 h-24 text-rose-600" />
-                                    </div>
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gastos</span>
-                                        <Icon name="down" className="w-5 h-5 text-rose-500" />
-                                    </div>
-                                    <p className="text-2xl font-black text-rose-600 mt-2">${stats.exp.toLocaleString()}</p>
-                                </Card>
-                                <Card className={`hover-lift border-0 bg-gradient-to-br ${stats.bal >= 0 ? 'from-indigo-600 to-violet-700' : 'from-rose-600 to-orange-600'} text-white shadow-2xl flex flex-col justify-between relative overflow-hidden`}>
-                                    <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
-                                        <Icon name="wallet" className="w-28 h-28 text-white" />
-                                    </div>
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Balance</span>
-                                        <Icon name={stats.bal >= 0 ? "up" : "down"} className="w-5 h-5 opacity-80" />
-                                    </div>
-                                    <p className="text-2xl font-black mt-2">${stats.bal.toLocaleString()}</p>
-                                </Card>
-                            </div>
-
-                            {/* Gráficas con iconos semitransparentes */}
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <Card className="flex flex-col items-center justify-between min-h-[260px] relative overflow-hidden">
-                                    <div className="absolute -right-4 -top-4 opacity-[0.04] pointer-events-none">
-                                        <Icon name="pieChart" className="w-28 h-28 text-indigo-600" />
-                                    </div>
-                                    <h3 className="w-full font-bold text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                        <Icon name="chart" className="w-3 h-3" /> Distribución
-                                    </h3>
-                                    <SVGPieChart data={stats.cData} />
-                                </Card>
-                                <Card className="flex flex-col justify-between min-h-[260px] relative overflow-hidden">
-                                    <div className="absolute -right-4 -top-4 opacity-[0.04] pointer-events-none">
-                                        <Icon name="barChart" className="w-28 h-28 text-indigo-600" />
-                                    </div>
-                                    <h3 className="font-bold text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                        <Icon name="chart" className="w-3 h-3" /> Rendimiento
-                                    </h3>
-                                    <SVGBarChart income={stats.inc} expense={stats.exp} />
-                                </Card>
-                                <Card className="flex flex-col justify-between min-h-[260px] relative overflow-hidden">
-                                    <div className="absolute -right-4 -top-4 opacity-[0.04] pointer-events-none">
-                                        <Icon name="calculator" className="w-28 h-28 text-indigo-600" />
-                                    </div>
-                                    <h3 className="font-bold text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                        <Icon name="calculator" className="w-3 h-3" /> Por Descripción
-                                    </h3>
-                                    <DescriptionBarChart transactions={transactions} />
-                                </Card>
-                            </div>
-
-                            {/* Lista de movimientos */}
-                            <Card noPadding className="overflow-hidden shadow-soft relative">
-                                <div className="absolute right-0 top-0 h-full flex items-center pr-8 opacity-[0.03] pointer-events-none">
-                                    <Icon name="list" className="w-40 h-40 text-indigo-600" />
-                                </div>
-                                <div className="p-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
-                                    <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                                        <Icon name="edit" className="w-4 h-4 text-indigo-500" /> Movimientos Recientes
-                                    </h3>
-                                    {transactions.length > 0 &&
-                                        <button onClick={() => setTransactions([])} className="text-[10px] font-bold text-rose-500 hover:underline">
-                                            Limpiar Todo
-                                        </button>}
-                                </div>
-                                <div className="divide-y divide-slate-100 dark:divide-white/5 max-h-[400px] overflow-y-auto custom-scrollbar">
-                                    {transactions.length === 0
-                                        ? <div className="p-20 text-center opacity-30 text-xs font-bold uppercase tracking-widest">Sin movimientos</div>
-                                        : transactions.map((t) => (
-                                            <div key={t.id} className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 group transition-all fade-in">
-                                                <div className="flex items-center gap-5">
-                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${t.type === 'income' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10'}`}>
-                                                        <Icon name={t.type === 'income' ? 'up' : 'down'} className="w-6 h-6" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-bold text-xs capitalize text-slate-800 dark:text-slate-100 leading-tight">{t.description}</p>
-                                                        <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">{t.category} · {t.date}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-6">
-                                                    <span className={`text-sm font-black tabular-nums ${t.type === 'income' ? 'text-emerald-500' : 'text-slate-700 dark:text-slate-300'}`}>
-                                                        {t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString()}
-                                                    </span>
-                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                                        <button
-                                                            onClick={() => { setEditingTransaction(t); setModalOpen(true); }}
-                                                            className="p-1.5 text-slate-400 hover:text-indigo-500 transition-colors">
-                                                            <Icon name="edit" className="w-4 h-4" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setTransactions(prev => prev.filter(x => x.id !== t.id))}
-                                                            className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors">
-                                                            <Icon name="trash" className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </div>
+                        <div className="divide-y divide-slate-100 dark:divide-white/5 max-h-[400px] overflow-y-auto custom-scrollbar">
+                            {transactions.length===0?<div className="p-20 text-center opacity-30 text-xs font-bold uppercase tracking-widest">Sin movimientos</div>
+                                :transactions.map(t=>(
+                                    <div key={t.id} className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 group transition-all fade-in">
+                                        <div className="flex items-center gap-5">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${t.type==='income'?'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10':'bg-rose-50 text-rose-600 dark:bg-rose-500/10'}`}>
+                                                <Icon name={t.type==='income'?'up':'down'} className="w-6 h-6"/>
                                             </div>
-                                        ))
-                                    }
-                                </div>
-                            </Card>
-                        </div>
-
-                        {/* Sidebar IA */}
-                        <div className="lg:col-span-3 h-[calc(100vh-10rem)] sticky top-24">
-                            <AISidebar transactions={transactions} />
-                        </div>
-                    </main>
-
-                    {/* Modal usuario */}
-                    {userModal.isOpen && (
-                        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6 fade-in text-slate-900 dark:text-white">
-                            <Card className="w-full max-w-sm p-8 relative scale-in shadow-premium border-none">
-                                <h2 className="text-xl font-black mb-6 flex items-center gap-3">
-                                    <Icon name="user" className="text-indigo-600" />
-                                    {userModal.type === 'add' ? 'Nuevo Perfil' : 'Editar Nombre'}
-                                </h2>
-                                <input
-                                    value={userModal.value}
-                                    onChange={e => setUserModal({ ...userModal, value: e.target.value })}
-                                    onKeyDown={e => e.key === 'Enter' && handleAddOrEditUser()}
-                                    placeholder="Nombre del usuario..."
-                                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white mb-6"
-                                    autoFocus
-                                />
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => setUserModal({ ...userModal, isOpen: false })}
-                                        className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl font-bold text-sm transition-colors hover:bg-slate-200 dark:hover:bg-slate-700">
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={handleAddOrEditUser}
-                                        className="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition-colors">
-                                        Confirmar
-                                    </button>
-                                </div>
-                            </Card>
-                        </div>
-                    )}
-
-                    {/* Modal transacción */}
-                    {modalOpen && (
-                        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6 fade-in text-slate-900 dark:text-white">
-                            <Card className="w-full max-w-lg p-10 relative scale-in shadow-premium border-none">
-                                <button
-                                    onClick={() => { setModalOpen(false); setEditingTransaction(null); }}
-                                    className="absolute top-6 right-6 p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-colors">
-                                    <Icon name="x" />
-                                </button>
-                                <h2 className="text-2xl font-black mb-8 flex items-center gap-4">
-                                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl">
-                                        <Icon name={editingTransaction ? 'edit' : 'plus'} className="w-6 h-6 text-indigo-600" />
-                                    </div>
-                                    {editingTransaction ? 'Editar' : 'Añadir'} Registro
-                                </h2>
-
-                                <form onSubmit={(e) => {
-                                    e.preventDefault();
-                                    const d = new FormData(e.target);
-                                    handleSaveTransaction({
-                                        id: editingTransaction?.id,
-                                        description: d.get('description'),
-                                        amount: Number(d.get('amount')),
-                                        type: d.get('type'),
-                                        category: d.get('category'),
-                                        date: d.get('date')
-                                    });
-                                }} className="space-y-6">
-                                    <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl flex gap-1 shadow-inner">
-                                        {['income', 'expense'].map(tp => (
-                                            <label key={tp} className="flex-1 text-center">
-                                                <input
-                                                    type="radio" name="type" value={tp}
-                                                    defaultChecked={editingTransaction?.type === tp || (!editingTransaction && tp === 'expense')}
-                                                    className="hidden peer"
-                                                />
-                                                <div className="cursor-pointer py-3 rounded-xl text-[10px] font-black uppercase transition-all peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:text-indigo-600 text-slate-500 peer-checked:shadow-sm">
-                                                    {tp === 'income' ? 'Ingreso' : 'Gasto'}
-                                                </div>
-                                            </label>
-                                        ))}
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="relative">
-                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">$</span>
-                                            <input
-                                                name="amount" type="number" step="0.01" min="0.01" required
-                                                defaultValue={editingTransaction?.amount}
-                                                placeholder="0.00"
-                                                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-indigo-500 rounded-3xl pl-12 pr-6 py-5 text-4xl font-black outline-none transition-all dark:text-white"
-                                            />
+                                            <div>
+                                                <p className="font-bold text-xs capitalize text-slate-800 dark:text-slate-100 leading-tight">{t.description}</p>
+                                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">{t.category} · {t.date?t.date.split('-').reverse().join('/'):''}</span>
+                                            </div>
                                         </div>
-                                        <input
-                                            name="description" required
-                                            defaultValue={editingTransaction?.description}
-                                            placeholder="Descripción (ej: Refresco)"
-                                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 outline-none focus:ring-1 focus:ring-indigo-500 text-sm dark:text-white transition-all"
-                                        />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2 text-xs">
-                                                <span className="font-bold text-slate-400 uppercase ml-1">Categoría</span>
-                                                <select
-                                                    name="category"
-                                                    defaultValue={editingTransaction?.category || 'General'}
-                                                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-3 outline-none dark:text-white appearance-none">
-                                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                                                </select>
-                                            </div>
-                                            <div className="space-y-2 text-xs">
-                                                <span className="font-bold text-slate-400 uppercase ml-1">Fecha</span>
-                                                <input
-                                                    name="date" type="date" required
-                                                    defaultValue={editingTransaction?.date || new Date().toISOString().split('T')[0]}
-                                                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-3 outline-none dark:text-white"
-                                                />
+                                        <div className="flex items-center gap-6">
+                                            <span className={`text-sm font-black tabular-nums ${t.type==='income'?'text-emerald-500':'text-slate-700 dark:text-slate-300'}`}>
+                                                {t.type==='income'?'+':'-'}${t.amount.toLocaleString()}
+                                            </span>
+                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                                <button onClick={()=>{setEditingTransaction(t);setModalOpen(true);}} className="p-1.5 text-slate-400 hover:text-indigo-500 transition-colors"><Icon name="edit" className="w-4 h-4"/></button>
+                                                <button onClick={()=>setTransactions(p=>p.filter(x=>x.id!==t.id))} className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"><Icon name="trash" className="w-4 h-4"/></button>
                                             </div>
                                         </div>
                                     </div>
-                                    <button
-                                        type="submit"
-                                        className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-xl mt-4 shadow-xl shadow-indigo-600/30 active:scale-95 transition-all hover:bg-indigo-500">
-                                        Guardar Movimiento
-                                    </button>
-                                </form>
-                            </Card>
+                                ))
+                            }
                         </div>
-                    )}
+                    </Card>
                 </div>
-            );
-        }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+                {/* AI Sidebar — same height as left column via CSS grid stretch */}
+                <div className="lg:col-span-3 flex flex-col">
+                    <AISidebar transactions={transactions}/>
+                </div>
+            </main>
+
+            {/* Transaction Modal */}
+            {modalOpen && (
+                <TransactionModal
+                    editing={editingTransaction}
+                    categories={categories}
+                    onCategoriesChange={setCategories}
+                    savedDescs={savedDescs}
+                    onSavedDescsChange={setSavedDescs}
+                    onSave={handleSave}
+                    onClose={()=>{setModalOpen(false);setEditingTransaction(null);}}
+                />
+            )}
+
+            {/* Account modals */}
+            {activeModal==='changePass'     && <ChangePasswordModal username={username} onClose={closeModal}/>}
+            {activeModal==='changeUsername' && <ChangeUsernameModal username={username} displayName={displayName} onClose={closeModal} onChanged={(nu,nd)=>{closeModal();onUpdateSession({username:nu,displayName:nd});}}/>}
+            {activeModal==='deleteAccount'  && <DeleteAccountModal  username={username} onClose={closeModal} onDeleted={onLogout}/>}
+        </div>
+    );
+};
+
+// ─── APP ROOT ──────────────────────────────────────────────────────────────────
+function App() {
+    const [session, setSession] = useState(()=>{
+        try {
+            const raw=localStorage.getItem(SESSION_KEY); if(!raw) return null;
+            const s=JSON.parse(raw); const store=getAuthStore();
+            return store[s.username]?s:null;
+        } catch{return null;}
+    });
+    const [screen, setScreen] = useState('login');
+
+    const handleLogin = (s) => { localStorage.setItem(SESSION_KEY,JSON.stringify(s)); setSession(s); };
+    const handleLogout = () => { localStorage.removeItem(SESSION_KEY); setSession(null); setScreen('login'); document.documentElement.classList.remove('dark'); };
+    const handleUpdateSession = (s) => { localStorage.setItem(SESSION_KEY,JSON.stringify(s)); setSession(s); };
+
+    if(session) return <Dashboard session={session} onLogout={handleLogout} onUpdateSession={handleUpdateSession}/>;
+    if(screen==='register') return <RegisterScreen onGoLogin={()=>setScreen('login')} onRegisterSuccess={u=>{const s=getAuthStore(),k=u.trim().toLowerCase(); handleLogin({username:k,displayName:s[k]?.displayName||u});}}/>;
+    return <LoginScreen onLogin={handleLogin} onGoRegister={()=>setScreen('register')}/>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
