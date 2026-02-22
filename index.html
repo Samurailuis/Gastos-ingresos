@@ -84,9 +84,12 @@ const askGroq = async (msgs) => {
     const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method:"POST",
         headers:{"Content-Type":"application/json","Authorization":`Bearer ${GROQ_API_KEY}`},
-        body:JSON.stringify({model:"llama3-8b-8192",messages:msgs,max_tokens:512,temperature:0.7})
+        body:JSON.stringify({model:"llama-3.1-8b-instant",messages:msgs,max_tokens:512,temperature:0.7})
     });
-    if(!r.ok) throw new Error(r.status);
+    if(!r.ok){
+        const errData = await r.json().catch(()=>({}));
+        throw new Error(errData?.error?.message || `HTTP ${r.status}`);
+    }
     return (await r.json()).choices[0].message.content;
 };
 
@@ -706,7 +709,7 @@ const AISidebar = ({ transactions }) => {
         const txt=input.trim()||"Dame un consejo financiero"; if(loading) return;
         const nm=[...messages,{role:'user',text:txt}]; setMessages(nm); setInput(''); setLoading(true);
         try { const r=await askGroq([{role:'system',content:buildSys()},...nm.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}))]); setMessages(p=>[...p,{role:'ai',text:r}]); }
-        catch { setMessages(p=>[...p,{role:'ai',text:'⚠️ Error al conectar. Verifica tu conexión.'}]); }
+        catch(e) { setMessages(p=>[...p,{role:'ai',text:`⚠️ Error: ${e.message}`}]); }
         finally { setLoading(false); }
     };
     return (
