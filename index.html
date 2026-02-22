@@ -79,15 +79,13 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
 // ─── GOOGLE GEMINI ─────────────────────────────────────────────────────────────
-const GEMINI_API_KEY = "AIzaSyBSDYQC5KZJRXjx34q3dvcsvK3S_EIFgHw";
-const GEMINI_MODEL   = "gemini-1.5-flash";
+const GEMINI_API_KEY = "AIzaSyD7hhwgxW-SoS_JYtuw-jY7eapBA5eBNCk";
+const GEMINI_MODEL   = "gemini-2.0-flash";
 
 const askGroq = async (msgs) => {
-    // Separate system message from conversation
     const systemMsg = msgs.find(m => m.role === 'system');
     const chatMsgs  = msgs.filter(m => m.role !== 'system');
 
-    // Convert to Gemini format (user/model roles)
     const contents = chatMsgs.map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: m.content }]
@@ -105,7 +103,10 @@ const askGroq = async (msgs) => {
         `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
         { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
     );
-    if (!r.ok) throw new Error(r.status);
+    if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err?.error?.message || r.status);
+    }
     const data = await r.json();
     return data.candidates[0].content.parts[0].text;
 };
